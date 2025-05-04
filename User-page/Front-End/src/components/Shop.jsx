@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { CartContext } from "../context/CartContext";
 import "./Shop.css";
 import { BASE_URL } from '../config';
 
-
 const Shop = () => {
   const { addToCart, addToWishlist } = useContext(CartContext);
-  const productGridRef = useRef();
 
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -15,7 +13,7 @@ const Shop = () => {
   const [priceRange, setPriceRange] = useState([40, 1500]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedRatings, setSelectedRatings] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedColors, setSelectedColors] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   const [promoBanners, setPromoBanners] = useState([]);
@@ -23,7 +21,10 @@ const Shop = () => {
   const [categories, setCategories] = useState([]);
   const [trendingProducts, setTrendingProducts] = useState([]);
   const [allBrands, setAllBrands] = useState([]);
-  const [totalPages, setTotalPages] = useState(0);
+  const [allRatings, setAllRatings] = useState([]);
+  const [allColors, setAllColors] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+ // Assuming you fetch this data
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,7 +40,8 @@ const Shop = () => {
         setCategories(data.categories || []);
         setTrendingProducts(data.trendingProducts || []);
         setAllBrands(data.brands || []);
-        setTotalPages(Math.ceil(allProducts.length / 8));
+        setAllRatings(data.ratings || [5, 4, 3, 2, 1]);
+        setAllColors(data.colors || []); // Assuming colors are fetched here
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -53,10 +55,11 @@ const Shop = () => {
   const indexOfLast = currentPage * productsPerPage;
   const indexOfFirst = indexOfLast - productsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   const changePage = (pageNum) => {
     setCurrentPage(pageNum);
-    productGridRef.current?.scrollIntoView({ behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Filter Handlers
@@ -80,43 +83,55 @@ const Shop = () => {
     );
   };
 
-  const handleRatingRangeChange = (e, range) => {
+  const handleRatingChange = (e, rating) => {
     const isChecked = e.target.checked;
     setSelectedRatings((prev) =>
-      isChecked
-        ? [...prev, range]
-        : prev.filter((r) => r.min !== range.min || r.max !== range.max)
+      isChecked ? [...prev, rating] : prev.filter((r) => r !== rating)
     );
   };
 
+  const handleColorChange = (e, color) => {
+    const isChecked = e.target.checked;
+    setSelectedColors((prev) =>
+      isChecked ? [...prev, color] : prev.filter((c) => c !== color)
+    );
+  };
   const handleCategoryChange = (e, category) => {
     const isChecked = e.target.checked;
     setSelectedCategories((prev) =>
       isChecked ? [...prev, category] : prev.filter((c) => c !== category)
     );
   };
-
+  
   const applyFilters = () => {
     let filtered = [...products];
 
+    // Price Filter
     filtered = filtered.filter(
       (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
     );
 
+    // Status Filter
     if (!statusFilters.includes("All")) {
       filtered = filtered.filter((p) => statusFilters.includes(p.tag));
     }
 
+    // Brand Filter
     if (selectedBrands.length > 0) {
       filtered = filtered.filter((p) => selectedBrands.includes(p.brand));
     }
 
+    // Rating Filter
     if (selectedRatings.length > 0) {
-      filtered = filtered.filter((p) =>
-        selectedRatings.some((r) => p.rating >= r.min && p.rating < r.max)
-      );
+      filtered = filtered.filter((p) => selectedRatings.includes(p.rating));
     }
 
+    // Color Filter
+    if (selectedColors.length > 0) {
+      filtered = filtered.filter((p) => selectedColors.includes(p.color));
+    }
+    
+    // Category Filter
     if (selectedCategories.length > 0) {
       filtered = filtered.filter((p) =>
         selectedCategories.includes(p.category)
@@ -124,18 +139,23 @@ const Shop = () => {
     }
 
     setFilteredProducts(filtered);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to page 1 when filters are applied
   };
 
   return (
     <div className="shop-page">
-      <div className="about-content">
-        <div className="about-card">
-          <img src="/src/assets/about-1.jpg" alt="about" />
-          <h2>Shop</h2>
-          <p>Home &gt; Shop</p>
+      {/* Banner */}
+      
+      <div className='about-content'>
+            <div className='about-card'>
+                <img src="/src/assets/about-1.jpg" alt="about" />
+                <h2>Shop</h2>
+                <div className="banner-overlay">
+          
+               <p>Home &gt; Shop</p>
         </div>
-      </div>
+            </div>
+        </div>
 
       <div className="shop-content container">
         {/* Filter Panel */}
@@ -184,38 +204,54 @@ const Shop = () => {
           <hr />
 
           <h3>Filter by Rating</h3>
-          {[
-            { label: "1 - 2 Stars", min: 1, max: 2 },
-            { label: "2 - 3 Stars", min: 2, max: 3 },
-            { label: "3 - 4 Stars", min: 3, max: 4 },
-            { label: "4 - 5 Stars", min: 4, max: 5 },
-          ].map((range, idx) => (
-            <label key={idx} className="rating-option">
+          {allRatings.map((rating) => (
+            <label key={rating} className="rating-option">
               <input
                 type="checkbox"
-                checked={selectedRatings.some(
-                  (r) => r.min === range.min && r.max === range.max
-                )}
-                onChange={(e) => handleRatingRangeChange(e, range)}
+                checked={selectedRatings.includes(rating)}
+                onChange={(e) => handleRatingChange(e, rating)}
               />
-              <span className="rating-stars">{range.label}</span>
+              <span className="star-icon">★</span> {rating}
             </label>
           ))}
 
           <hr />
 
-          <h3>Filter by Category</h3>
-          {categories.map((category, i) => (
-            <label key={i}>
+          <h3>Filter by Color</h3>
+          {allColors.map((color, idx) => (
+            <label key={idx}>
               <input
                 type="checkbox"
-                checked={selectedCategories.includes(category)}
-                onChange={(e) => handleCategoryChange(e, category)}
+                checked={selectedColors.includes(color)}
+                onChange={(e) => handleColorChange(e, color)}
               />{" "}
-              {category}
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "20px",
+                  height: "20px",
+                  backgroundColor: color,
+                  borderRadius: "50%",
+                }}
+              />
             </label>
           ))}
+          <h3>Filter by Category</h3>
+{categories.map((category, idx) => (
+  <label key={idx}>
+    <input
+      type="checkbox"
+      checked={selectedCategories.includes(category)}
+      onChange={(e) => handleCategoryChange(e, category)}
+    />{" "}
+    {category}
+  </label>
+))}
         </aside>
+        <hr />
+
+
+
 
         {/* Main Shop Area */}
         <main className="shop-main">
@@ -231,7 +267,7 @@ const Shop = () => {
           </div>
 
           {/* Product Grid */}
-          <section className="product-grid" ref={productGridRef}>
+          <section className="product-grid">
             {currentProducts.length === 0 ? (
               <p>No products found matching your filters.</p>
             ) : (
@@ -245,11 +281,7 @@ const Shop = () => {
                     </span>
                   )}
                   <img
-                    src={
-                      product.img
-                        ? `../admin-client/server/${product.img}`
-                        : product.image
-                    }
+                    src={product.img ? `../admin-client/server/${product.img}` : product.image}
                     alt={product.title || product.name}
                   />
                   <p className="category">{product.category}</p>
@@ -260,10 +292,10 @@ const Shop = () => {
                       <span className="old-price">${product.original}</span>
                     )}
                   </div>
+
+                  {/* Action Buttons */}
                   <div className="card-actions">
-                    <button onClick={() => addToCart(product)}>
-                      Add to Cart
-                    </button>
+                    <button onClick={() => addToCart(product)}>Add to Cart</button>
                     <button onClick={() => addToWishlist(product)}>♥</button>
                   </div>
                 </div>
