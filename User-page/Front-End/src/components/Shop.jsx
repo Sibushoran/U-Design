@@ -4,6 +4,7 @@ import { CartContext } from "../context/CartContext";
 import "./Shop.css";
 import { BASE_URL } from '../config';
 
+
 const Shop = () => {
   const { addToCart, addToWishlist } = useContext(CartContext);
   const productGridRef = useRef();
