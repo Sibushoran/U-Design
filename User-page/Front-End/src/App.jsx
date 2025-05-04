@@ -5,7 +5,7 @@ import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import Front from './components/Front';
 import About from './components/About';
-import Shop from './components/shop';
+import Shop from './components/Shop';
 import News from './components/News';
 import Contact from './components/Contact';
 import Login from './components/Login';
