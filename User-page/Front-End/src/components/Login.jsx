@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // useNavigate from React Router v6
 import axios from 'axios';
 import { Link } from 'react-router-dom'; // Import Link for navigation
+import { BASE_URL } from '../config';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5001/api/auth/login', {
+      const response = await axios.post(`${BASE_URL}/api/auth/login`, {
         email,
         password,
       });
