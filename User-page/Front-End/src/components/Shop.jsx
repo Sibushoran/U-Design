@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import { CartContext } from "../context/CartContext";
 import "./Shop.css";
+import { BASE_URL } from '../config';
 
 const Shop = () => {
   const { addToCart, addToWishlist } = useContext(CartContext);
@@ -26,7 +27,7 @@ const Shop = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/api/products");
+        const res = await axios.get(`${BASE_URL}/api/products`);
         const data = res.data;
         const allProducts = data.products || [];
 
