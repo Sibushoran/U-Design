@@ -15,7 +15,7 @@ const User = require('./models/User');
 const Product = require('./models/Product');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // MongoDB connection
