@@ -6,7 +6,7 @@ const ProtectedRoute = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5002/api/check-auth', {
+    fetch('http://localhost:5000/api/check-auth', {
       credentials: 'include',
     })
       .then(res => res.json())

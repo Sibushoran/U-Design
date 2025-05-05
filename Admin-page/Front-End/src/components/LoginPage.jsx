@@ -9,7 +9,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:5002/api/check-auth', {
+    fetch('http://localhost:5000/api/check-auth', {
       credentials: 'include',
     })
       .then(res => res.json())
@@ -26,7 +26,7 @@ const LoginPage = () => {
       return;
     }
 
-    const res = await fetch('http://localhost:5002/api/send-otp', {
+    const res = await fetch('http://localhost:5000/api/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
@@ -47,7 +47,7 @@ const LoginPage = () => {
       return;
     }
 
-    const res = await fetch('http://localhost:5002/api/verify-otp', {
+    const res = await fetch('http://localhost:5000/api/verify-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, otp }),
@@ -65,7 +65,9 @@ const LoginPage = () => {
 
   return (
     <div style={{ padding: '2rem' }}>
+      
       <h2>Email OTP Login</h2>
+
       <input
         type="email"
         placeholder="Enter email"

@@ -1,132 +1,79 @@
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const session = require("express-session");
-const bodyParser = require("body-parser");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-const { Resend } = require("resend");
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const session = require('express-session');
+const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { Resend } = require('resend');
+const multer = require('multer');
+const path = require('path');
 
-const Product = require("./models/Product");
-const User = require("./models/User");
+// Models
+const User = require('./models/User');
+const Product = require('./models/Product');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// ===== Middleware =====
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/shopdb', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => console.log("✅ MongoDB connected")).catch(err => console.error("❌ MongoDB connection error:", err));
+
+// Middleware
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174'],
   credentials: true,
 }));
-app.use(bodyParser.json());
 app.use(express.json());
-
+app.use(bodyParser.json());
 app.use(session({
   secret: 'otp_secret_key',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false },
+  cookie: { secure: false }, // use true in production with HTTPS
 }));
 
-// ===== Static files =====
-const uploadsDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-app.use("/uploads", express.static(uploadsDir));
+// ================= USER AUTH ROUTES ===================
 
-// ===== Multer config =====
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-const upload = multer({ storage });
-
-// ===== MongoDB Connection =====
-mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/myshop', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
-
-// ===== Product Routes =====
-app.get("/api/products", async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.json({ products });
-  } catch (err) {
-    console.error("Error fetching products:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-app.post("/api/products", upload.single("image"), async (req, res) => {
-  try {
-    const newProduct = new Product({
-      ...req.body,
-      image: req.file ? `/uploads/${req.file.filename}` : "",
-    });
-    await newProduct.save();
-    res.status(201).json({ message: "✅ Product added", product: newProduct });
-  } catch (err) {
-    console.error("Error saving product:", err.stack);
-    res.status(500).json({ error: "Failed to add product" });
-  }
-});
-
-app.delete("/api/products/:id", async (req, res) => {
-  try {
-    const deleted = await Product.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "Product not found" });
-    res.json({ message: "✅ Product deleted" });
-  } catch (err) {
-    console.error("Delete error:", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-// ===== Auth Routes =====
-// Email & Password Signup/Login
+// Signup (Email + Password)
 app.post('/api/auth/signup', async (req, res) => {
   const { email, password } = req.body;
   try {
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ message: 'User already exists' });
 
-    const hashed = await bcrypt.hash(password, 10);
-    const user = new User({ email, password: hashed });
+    const user = new User({ email, password });
     await user.save();
-    res.status(201).json({ message: 'User created' });
+    res.status(201).json({ message: 'User created successfully' });
   } catch (err) {
-    res.status(500).json({ message: 'Signup failed' });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
+// Login (Email + Password)
 app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
+    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) return res.status(400).json({ message: 'Invalid credentials' });
+
     const token = jwt.sign({ id: user._id }, 'your_jwt_secret', { expiresIn: '1d' });
     res.json({ token });
   } catch (err) {
-    res.status(500).json({ message: 'Login failed' });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// OTP-based login
+// OTP Email Login
 const otpStore = {};
-
 app.post('/api/send-otp', async (req, res) => {
   const { email } = req.body;
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -140,8 +87,8 @@ app.post('/api/send-otp', async (req, res) => {
       html: `<p>Your OTP is <strong>${otp}</strong></p>`,
     });
     res.json({ message: 'OTP sent to email' });
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to send OTP' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to send OTP', error });
   }
 });
 
@@ -171,7 +118,6 @@ app.post('/api/logout', (req, res) => {
   });
 });
 
-// Admin: Get all users
 app.get('/api/users', async (req, res) => {
   try {
     const users = await User.find({}, 'email password');
@@ -181,7 +127,60 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-// ===== Start Server =====
+// ================= PRODUCT ROUTES ===================
+
+// Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Multer storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, 'uploads'));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
+});
+const upload = multer({ storage });
+
+// Get all products
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.json({ products });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Add new product
+app.post('/api/products', upload.single('image'), async (req, res) => {
+  try {
+    const newProduct = new Product({
+      ...req.body,
+      image: req.file ? `/uploads/${req.file.filename}` : "",
+    });
+
+    await newProduct.save();
+    res.status(201).json({ message: '✅ Product added successfully!', product: newProduct });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add product' });
+  }
+});
+
+// Delete product
+app.delete('/api/products/:id', async (req, res) => {
+  try {
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: 'Product not found' });
+    res.json({ message: '✅ Product deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// ================= START SERVER ===================
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
