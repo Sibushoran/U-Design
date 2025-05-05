@@ -33,7 +33,7 @@ const LoginPage = () => {
     setErrorMessage(''); // Clear previous errors
 
     try {
-      const res = await fetch('http://localhost:5000/api/send-otp', {
+      const res = await fetch('https://u-design-4.onrender.com/api/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -61,7 +61,7 @@ const LoginPage = () => {
     setErrorMessage(''); // Clear previous errors
 
     try {
-      const res = await fetch('http://localhost:5000/api/verify-otp', {
+      const res = await fetch('https://u-design-4.onrender.com/api/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp }),
