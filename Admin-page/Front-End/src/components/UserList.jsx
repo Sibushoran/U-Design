@@ -8,7 +8,7 @@ const UserList = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:5001/api/users"); // Changed from 5000 to 5002
+        const response = await axios.get("https://u-design-4.onrender.com/api/users"); // Changed from 5000 to 5002
         setUsers(response.data);
       } catch (error) {
         setError("Failed to fetch users");
