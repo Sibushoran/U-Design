@@ -10,7 +10,7 @@ const LoginPage = () => {
 
   // Check authentication status on component mount
   useEffect(() => {
-    fetch('http://localhost:5000/api/check-auth', {
+    fetch('https://u-design-4.onrender.com/api/check-auth', {
       credentials: 'include',
     })
       .then(res => res.json())
