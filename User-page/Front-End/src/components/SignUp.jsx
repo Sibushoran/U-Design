@@ -1,32 +1,31 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // useNavigate from React Router v6
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { BASE_URL } from '../config';
+import './SignUp.css'; // Add this import
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate(); // Hook to navigate to different routes
+  const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-    // Check if passwords match
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match');
       return;
     }
 
     try {
-      const response = await axios.post(`${BASE_URL}/api/auth/signup`, {
+      const response = await axios.post('http://localhost:5000/api/auth/signup', {
         email,
         password,
       });
 
       if (response.data.message === 'User created successfully') {
-        // Redirect to login page after successful sign-up
         navigate('/login');
       }
     } catch (error) {
@@ -35,11 +34,11 @@ const SignUp = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: 'auto', padding: '20px', backgroundColor: '#f4f4f4', borderRadius: '8px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Sign Up</h2>
+    <div className="signup-container">
+      <h2 className="signup-title">Sign Up</h2>
       <form onSubmit={handleSignUp}>
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="email" style={{ display: 'block', marginBottom: '5px' }}>Email</label>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
           <input
             id="email"
             type="email"
@@ -47,18 +46,12 @@ const SignUp = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '10px',
-              fontSize: '14px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-            }}
+            className="form-input"
           />
         </div>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="password" style={{ display: 'block', marginBottom: '5px' }}>Password</label>
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
           <input
             id="password"
             type="password"
@@ -66,18 +59,12 @@ const SignUp = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '10px',
-              fontSize: '14px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-            }}
+            className="form-input"
           />
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label htmlFor="confirmPassword" style={{ display: 'block', marginBottom: '5px' }}>Confirm Password</label>
+        <div className="form-group">
+          <label htmlFor="confirmPassword">Confirm Password</label>
           <input
             id="confirmPassword"
             type="password"
@@ -85,35 +72,13 @@ const SignUp = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '10px',
-              fontSize: '14px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-            }}
+            className="form-input"
           />
         </div>
 
-        {errorMessage && (
-          <p style={{ color: 'red', fontSize: '14px', marginBottom: '10px' }}>
-            {errorMessage}
-          </p>
-        )}
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-        <button
-          type="submit"
-          style={{
-            width: '100%',
-            padding: '10px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            fontSize: '16px',
-            borderRadius: '4px',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
+        <button type="submit" className="signup-btn">
           Sign Up
         </button>
       </form>

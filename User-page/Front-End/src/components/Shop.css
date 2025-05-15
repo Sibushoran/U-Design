@@ -473,3 +473,21 @@ a:hover {
   font-weight: 400;
   margin: 0;
 }
+.filter-toggle-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem 0;
+}
+
+.toggle-filters-btn {
+  background-color: #222;
+  color: #fff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.toggle-filters-btn:hover {
+  background-color: #444;
+}

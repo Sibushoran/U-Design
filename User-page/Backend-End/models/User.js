@@ -1,15 +1,16 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const mongoose = require("mongoose");
 
+// Define the User schema
 const userSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  email: {
+    type: String,  // The type of this field is a string.
+    required: true,  // This field is mandatory.
+  },
+  password: {
+    type: String,  // The type of this field is a string (hashed password).
+    required: true,  // This field is mandatory.
+  },
 });
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
-
-module.exports = mongoose.model('User', userSchema);
+// Create and export the User model using the defined schema
+module.exports = mongoose.model("User", userSchema);

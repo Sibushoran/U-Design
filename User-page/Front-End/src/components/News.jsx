@@ -80,17 +80,12 @@ const News = () => {
   const currentPosts = blogPosts.slice(startIndex, startIndex + postsPerPage);
 
   return (
-    <div className="news-page">
+    <div className="news-page container">
       {/* Breadcrumb */}
-      <div className="breadcrumb">
-        <span>Home</span>
-        <span className="separator">/</span>
-        <span>Blog</span>
-      </div>
-
-      <div className="news-layout">
+     
+      <div className="news-layout row">
         {/* Blog Content */}
-        <div className="news-box">
+        <div className="news-box col-12 col-md-8">
           {currentPosts.map((post) => (
             <div className="news-main" key={post.id}>
               <div className="news-image-wrapper">
@@ -111,24 +106,23 @@ const News = () => {
               </div>
             </div>
           ))}
+          
           <ul className="pagination">
-    {Array.from({ length: totalPages }, (_, i) => (
-      <li key={i}>
-        <button
-          onClick={() => setCurrentPage(i + 1)}
-          className={`pagination-button ${currentPage === i + 1 ? "active" : ""}`}
-        >
-          {i + 1}
-        </button>
-      </li>
-    ))}
-  </ul>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <li key={i} className="page-item">
+                <button
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`pagination-button page-link ${currentPage === i + 1 ? "active" : ""}`}
+                >
+                  {i + 1}
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
 
-      
-
         {/* Sidebar */}
-        <aside className="news-sidebar">
+        <aside className="news-sidebar col-12 col-md-4">
           <div className="sidebar-section">
             <h3>Search Posts</h3>
             <div className="sidebar-search">
@@ -192,15 +186,14 @@ const News = () => {
           <div className="sidebar-section sidebar-tags">
             <h3>Tags</h3>
             <div className="tags-container">
-  {["Tech", "Home", "Outdoor", "Gadgets", "Finance", "DIY", "Culture", "Design", "Tips"].map(
-    (tag, idx) => (
-      <button className="tag-button" key={idx}>
-        {tag}
-      </button>
-    )
-  )}
-</div>
-
+              {["Tech", "Home", "Outdoor", "Gadgets", "Finance", "DIY", "Culture", "Design", "Tips"].map(
+                (tag, idx) => (
+                  <button className="tag-button" key={idx}>
+                    {tag}
+                  </button>
+                )
+              )}
+            </div>
           </div>
         </aside>
       </div>

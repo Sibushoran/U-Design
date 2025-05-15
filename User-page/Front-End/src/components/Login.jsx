@@ -1,28 +1,27 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // useNavigate from React Router v6
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { Link } from 'react-router-dom'; // Import Link for navigation
 import { BASE_URL } from '../config';
-
+import './Login.css'; // Add this line for custom styles
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate(); // Hook to navigate to different routes
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`${BASE_URL}/api/auth/login`, {
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
         email,
         password,
       });
 
       if (response.data.token) {
-        localStorage.setItem('authToken', response.data.token); // Save token to localStorage
-        navigate('/'); // Redirect to home page (Main page)
+        localStorage.setItem('authToken', response.data.token);
+        navigate('/');
       }
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Login failed');
@@ -30,11 +29,11 @@ const Login = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: 'auto', padding: '20px', backgroundColor: '#f4f4f4', borderRadius: '8px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Login</h2>
+    <div className="login-container">
+      <h2 className="login-title">Login</h2>
       <form onSubmit={handleLogin}>
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="email" style={{ display: 'block', marginBottom: '5px' }}>Email</label>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
           <input
             id="email"
             type="email"
@@ -42,18 +41,12 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '10px',
-              fontSize: '14px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-            }}
+            className="form-input"
           />
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label htmlFor="password" style={{ display: 'block', marginBottom: '5px' }}>Password</label>
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
           <input
             id="password"
             type="password"
@@ -61,42 +54,19 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '10px',
-              fontSize: '14px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-            }}
+            className="form-input"
           />
         </div>
 
-        {errorMessage && (
-          <p style={{ color: 'red', fontSize: '14px', marginBottom: '10px' }}>
-            {errorMessage}
-          </p>
-        )}
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-        <button
-          type="submit"
-          style={{
-            width: '100%',
-            padding: '10px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            fontSize: '16px',
-            borderRadius: '4px',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
+        <button type="submit" className="login-btn">
           Login
         </button>
       </form>
 
-      {/* Link to the Sign-Up page */}
-      <p style={{ textAlign: 'center', marginTop: '10px' }}>
-        Don't have an account? <Link to="/signup" style={{ color: '#4CAF50' }}>Sign up here</Link>
+      <p className="signup-link">
+        Don't have an account? <Link to="/signup">Sign up here</Link>
       </p>
     </div>
   );

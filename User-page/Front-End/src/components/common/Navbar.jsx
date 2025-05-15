@@ -1,6 +1,6 @@
-// src/components/Navbar/Navbar.jsx
-import React, { useContext, useState, useEffect, Fragment } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState, Fragment, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   FaHeart,
   FaShoppingCart,
@@ -13,6 +13,7 @@ import {
   FaSearch,
   FaFacebookF,
   FaLinkedinIn,
+  FaBars,
 } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
@@ -21,45 +22,34 @@ import { CartContext } from "../../context/CartContext";
 
 const Navbar = () => {
   const { cartItems, wishlistItems } = useContext(CartContext);
+  const [categories, setCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const navigate = useNavigate();
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [showResults, setShowResults] = useState(false);
-
-  useEffect(() => {
-    fetch("/data/products.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setProducts(data);
-      })
-      .catch((err) => {
-        console.error("Failed to load products.json", err);
-      });
-  }, []);
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleSearchSubmit = (e) => {
+  const handleSearch = (e) => {
     e.preventDefault();
-    if (searchTerm.trim() !== "") {
-      const results = products.filter((product) =>
-        product.title.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredProducts(results);
-      setShowResults(true);
-    } else {
-      setFilteredProducts([]);
-      setShowResults(false);
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/categories");
+        setCategories(res.data.categories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   return (
     <Fragment>
       {/* Top Bar */}
-      <div className="bg-dark text-white small py-2 px-3 d-flex justify-content-between align-items-center">
+      <div className="bg-dark text-white small py-2 px-3 d-none d-md-flex justify-content-between align-items-center">
         <div>
           <FaEnvelope className="me-2" />
           support@d-themes.com
@@ -78,121 +68,186 @@ const Navbar = () => {
       </div>
 
       {/* Main Header */}
-      <div className="d-flex align-items-center justify-content-between px-4 py-3 bg-white shadow-sm">
-        {/* Logo */}
-        <Link to="/">
-          <img
-            src="https://d-themes.com/wordpress/udesign/electronics/wp-content/uploads/sites/37/2024/10/logo-header-1.png"
-            alt="UDesign Logo"
-            height="40"
-          />
+      <div className="d-flex flex-wrap align-items-center justify-content-between px-3 py-3 bg-white shadow-sm">
+        <Link to="/" className="text-decoration-none">
+          <h2 className="shopnest-logo mb-0">
+            Shop<span>Nest</span>
+          </h2>
         </Link>
 
-        {/* Search Bar */}
-        <form className="d-flex w-50 mx-4 position-relative" onSubmit={handleSearchSubmit}>
+        {/* Mobile Hamburger */}
+        <button
+          className="d-md-none btn border"
+          onClick={() => setShowMobileMenu(!showMobileMenu)}
+        >
+          <FaBars />
+        </button>
+
+        {/* Search bar */}
+        <form
+          className="premium-search-bar mx-auto d-none d-md-flex"
+          onSubmit={handleSearch}
+        >
           <input
             type="text"
-            className="form-control rounded-pill px-4"
-            placeholder="Search for products"
-            value={searchTerm}
-            onChange={handleSearchChange}
+            className="premium-search-input"
+            placeholder="Search for products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button
-            type="submit"
-            className="btn btn-link position-absolute end-0 top-0 mt-1 me-2 text-primary"
-          >
-            <FaSearch size={20} />
+          <button type="submit" className="premium-search-btn">
+            <FaSearch />
           </button>
         </form>
 
-        {/* Contact & Icons */}
-        <div className="d-flex align-items-center gap-4">
-          <div className="d-flex align-items-center">
-            <FaPhoneAlt className="text-primary me-2" />
+        {/* Right icons */}
+        <div className="d-flex align-items-center gap-3 mt-3 mt-md-0">
+          <div className="d-none d-md-flex align-items-center">
+            <FaPhoneAlt className="text-dark me-2" size={18} />
             <div>
-              <small className="text-muted">Call Us Now:</small>
-              <div className="fw-bold">0(800) 123-456</div>
+              <small className="text-muted">Call Us</small>
+              <div className="fw-semibold">0(800) 123-456</div>
             </div>
           </div>
-
-          <Link to="/wishlist" className="text-dark fs-5 position-relative">
-            <FaHeart />
-            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+          <Link to="/wishlist" className="text-dark position-relative">
+            <FaHeart size={20} />
+            <span className="position-absolute top-0 start-100 translate-middle badge bg-dark rounded-pill">
               {wishlistItems.length}
             </span>
           </Link>
-
-          <Link to="/cart" className="text-dark fs-5 position-relative">
-            <FaShoppingCart />
-            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+          <Link to="/cart" className="text-dark position-relative">
+            <FaShoppingCart size={20} />
+            <span className="position-absolute top-0 start-100 translate-middle badge bg-dark rounded-pill">
               {cartItems.length}
             </span>
           </Link>
         </div>
       </div>
 
-      {/* Navigation Bar */}
-      <nav className="bg-primary px-4 py-2 d-flex justify-content-between align-items-center">
-        <ul className="navbar-nav flex-row align-items-center gap-4 m-0">
-          <li className="nav-item dropdown all-categories-dropdown">
-            <Link
-              to="#"
-              className="nav-link dropdown-toggle text-dark bg-white rounded-pill px-3 py-2 d-flex align-items-center"
-              role="button"
-              data-bs-toggle="dropdown"
-            >
-              <i className="fas fa-bars me-2"></i> All Categories
-            </Link>
-            <ul className="dropdown-menu show-dropdown">
-              <li><Link to="#" className="dropdown-item"><i className="fas fa-headphones-alt me-2"></i> HeadPhone</Link></li>
-              <li><Link to="#" className="dropdown-item"><i className="fas fa-laptop me-2"></i> Laptops <span className="float-end">&#8250;</span></Link></li>
-              <li><Link to="#" className="dropdown-item"><i className="fas fa-plug me-2"></i> Accessories <span className="float-end">&#8250;</span></Link></li>
+      {/* Main Navigation */}
+      <nav className={`navbar navbar-expand-md bg-primary px-4 py-2`}>
+        <div className="container-fluid p-0">
+          <div className="collapse navbar-collapse d-md-flex justify-content-between">
+            <ul className="navbar-nav flex-column flex-md-row align-items-start align-items-md-center gap-3 m-0">
+              <li className="nav-item dropdown">
+                <span
+                  className="nav-link dropdown-toggle text-dark bg-white rounded-pill px-3 py-2 d-flex align-items-center"
+                  data-bs-toggle="dropdown"
+                  role="button"
+                >
+                  <i className="fas fa-bars me-2"></i> All Categories
+                </span>
+                <ul className="dropdown-menu mt-2">
+                  {categories.length > 0 ? (
+                    categories.map((category, index) => (
+                      <li key={index}>
+                        <Link
+                          to={`/shop?category=${encodeURIComponent(category)}`}
+                          className="dropdown-item"
+                        >
+                          <i className="fas fa-cogs me-2"></i> {category}
+                        </Link>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="dropdown-item text-muted">Loading...</li>
+                  )}
+                </ul>
+              </li>
+              <li>
+                <Link to="/" className="nav-link text-white">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="nav-link text-white">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/shop" className="nav-link text-white">
+                  Shop
+                </Link>
+              </li>
+              <li>
+                <Link to="/news" className="nav-link text-white">
+                  News
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="nav-link text-white">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/track"
+                  className="nav-link text-white d-flex align-items-center"
+                >
+                  <FaMapMarkerAlt className="me-1" /> Track Order
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/deals"
+                  className="nav-link text-white d-flex align-items-center"
+                >
+                  <FaTags className="me-1" /> Daily Deals
+                </Link>
+              </li>
             </ul>
-          </li>
-
-          {/* Other Navigation Links */}
-          <li><Link to="/" className="nav-link text-white">Home</Link></li>
-          <li><Link to="/about" className="nav-link text-white">About Us</Link></li>
-          <li><Link to="/shop" className="nav-link text-white">Shop</Link></li>
-          <li><Link to="/news" className="nav-link text-white">News</Link></li>
-          <li><Link to="/contact" className="nav-link text-white">Contact Us</Link></li>
-          <li><Link to="/track" className="nav-link text-white d-flex align-items-center"><FaMapMarkerAlt className="me-1" /> Track Order</Link></li>
-          <li><Link to="/deals" className="nav-link text-white d-flex align-items-center"><FaTags className="me-1" /> Daily Deals</Link></li>
-        </ul>
-
-        {/* Login Button */}
-        <Link to="/login" className="btn btn-outline-light rounded-pill">
-          <FaUser className="me-2" /> Login
-        </Link>
+            <Link
+              to="/login"
+              className="btn btn-outline-light rounded-pill mt-3 mt-md-0"
+            >
+              <FaUser className="me-2" /> Login
+            </Link>
+          </div>
+        </div>
       </nav>
 
-      {/* Filtered Products Section */}
-      {showResults && (
-        <div className="container py-4">
-          <h4>Search Results:</h4>
-          <div className="row">
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
-                <div key={product.id} className="col-md-4 mb-4">
-                  <div className="card h-100 shadow-sm">
-                    <img
-                      src={product.img}
-                      alt={product.title}
-                      className="card-img-top"
-                      style={{ height: "200px", objectFit: "cover" }}
-                    />
-                    <div className="card-body">
-                      <h5 className="card-title">{product.title}</h5>
-                      <p className="card-text">{product.description}</p>
-                      <p className="text-primary fw-bold">${product.price}</p>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div>No products found.</div>
-            )}
-          </div>
+      {/* Mobile Menu Dropdown */}
+      {showMobileMenu && (
+        <div className="bg-primary d-md-none text-white px-4 py-3">
+          <form onSubmit={handleSearch} className="mb-3">
+            <input
+              type="text"
+              className="form-control mb-2"
+              placeholder="Search for products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button className="btn btn-light w-100" type="submit">
+              Search
+            </button>
+          </form>
+          <ul className="list-unstyled">
+            <li>
+              <Link to="/" className="text-white d-block py-1">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="text-white d-block py-1">
+                About Us
+              </Link>
+            </li>
+            <li>
+              <Link to="/shop" className="text-white d-block py-1">
+                Shop
+              </Link>
+            </li>
+            <li>
+              <Link to="/news" className="text-white d-block py-1">
+                News
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className="text-white d-block py-1">
+                Contact Us
+              </Link>
+            </li>
+          </ul>
         </div>
       )}
     </Fragment>

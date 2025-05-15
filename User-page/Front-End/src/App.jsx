@@ -11,7 +11,10 @@ import Contact from './components/Contact';
 import Login from './components/Login';
 import Wishlist from './components/Wishlist';
 import Cart from './components/Cart';
+import CategoryPage from "./components/CategoryPage";
 import SignUp from './components/SignUp';
+import TrackOrder from "./pages/TrackOrder";
+import Deals from "./pages/Deals";
 
 const App = () => {
   return (
@@ -29,6 +32,9 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+           <Route path="/category/:category" element={<CategoryPage />} />
+             <Route path="/track" element={<TrackOrder />} />
+        <Route path="/deals" element={<Deals />} />
         </Routes>
       </div>
       <Footer />

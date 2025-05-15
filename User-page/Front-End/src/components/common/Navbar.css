@@ -1,186 +1,225 @@
-/* General Styles */
-body {
-  font-family: 'Roboto', sans-serif;
-  background-color: #f4f4f4;
+
+.navbar-nav .dropdown-menu {
+  min-width: 220px;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
+  animation: fadeIn 0.2s ease-in-out;
 }
 
-/* Top Bar */
-.top-bar {
-  background-color: #1d1d1f;  /* Dark premium background */
-  font-size: 14px;
-  font-weight: 400;
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #d0d0d0;  /* Light gray text */
-}
-
-.top-bar .text-muted {
-  font-size: 12px;
-  color: #c0c0c0; /* Light gray for subtext */
-}
-
-/* Top Bar Links */
-.top-bar .d-flex a {
-  color: #d0d0d0;
-  font-weight: 500;
-  margin-left: 20px;
-  transition: color 0.3s ease;
-}
-
-.top-bar .d-flex a:hover {
-  color: #c8a200;  /* Premium Gold */
-}
-
-/* Main Header */
-.main-header {
+.navbar-nav .dropdown-item {
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem;
+  color: #333;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  background-color: #fff;  /* White background for contrast */
-  padding: 15px 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.main-header .logo {
-  transition: transform 0.3s ease;
+.navbar-nav .dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #007bff;
 }
 
-.main-header .logo:hover {
-  transform: scale(1.05);
-}
-
-.search-bar input {
-  border: 2px solid #ddd;
-  border-radius: 25px;
-  padding: 10px 20px;
-  font-size: 16px;
-  transition: border-color 0.3s ease;
-}
-
-.search-bar input:focus {
-  border-color: #c8a200;  /* Premium Gold on focus */
-}
-
-.search-bar button {
-  background: none;
-  border: none;
-  color: #c8a200;  /* Premium Gold */
-  font-size: 18px;
-  position: absolute;
-  top: 50%;
-  right: 20px;
-  transform: translateY(-50%);
-  transition: color 0.3s ease;
-}
-
-.search-bar button:hover {
-  color: #a87f00;  /* Slightly darker gold on hover */
-}
-
-/* Contact & Icons */
-.contact-icons a {
-  font-size: 18px;
-  color: #1d1d1f;
-  position: relative;
-  transition: color 0.3s ease;
-}
-
-.contact-icons a:hover {
-  color: #c8a200;  /* Premium Gold on hover */
-}
-
-.contact-icons .badge {
-  background-color: #c8a200;  /* Premium Gold */
-  color: #fff;
-  font-size: 12px;
-  padding: 2px 6px;
-  position: absolute;
-  top: -5px;
-  right: -5px;
-}
-
-/* Navbar Styles */
-.navbar {
-  background-color: #1d1d1f;  /* Dark background for the navbar */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.navbar .nav-link {
-  color: #fff;
-  font-size: 16px;
-  padding: 12px 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.navbar .nav-link:hover {
-  background-color: #c8a200;  /* Premium Gold hover background */
-  color: #fff;
-}
-
-/* Navbar Dropdown Styles */
-.navbar .dropdown-menu {
-  border-radius: 5px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: #1d1d1f;  /* Dark background for dropdown */
-}
-
-.navbar .dropdown-item {
-  padding: 10px 20px;
-  font-size: 15px;
-  color: #d0d0d0;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.navbar .dropdown-item:hover {
-  background-color: #c8a200;  /* Premium Gold */
-  color: #fff;
-}
-
-/* Hover Effects */
-.navbar-nav li:hover {
-  transform: scale(1.05);
-}
-
-.navbar-nav li:hover .nav-link {
-  color: #fff;
-}
-
-.navbar-nav li:hover .dropdown-menu {
-  display: block;
-}
-
-/* Responsive Navbar */
-@media (max-width: 991px) {
-  .navbar {
-    padding: 10px 15px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
   }
-
-  .navbar .nav-link {
-    padding: 10px 15px;
-    font-size: 14px;
-  }
-
-  .search-bar {
-    display: none;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
-
-@media (max-width: 767px) {
-  .top-bar {
-    display: none;
-  }
+:root {
+  --royal-base: #6a2c70;
+  --royal-accent: #b03a64;
+  --royal-glow: #e4b8d0;
+  --royal-text: #faf0ff;
 }
-.btn-outline-light {
-  border: 1px solid #fff;
-  color: #fff;
+
+/* Navbar Background - Deep glossy blend */
+.bg-primary {
+  background: linear-gradient(145deg, var(--royal-base), var(--royal-accent));
+  box-shadow: 0 3px 12px rgba(176, 58, 100, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Nav Links - Gloss on hover */
+.navbar-nav .nav-link {
+  color: var(--royal-text) !important;
   transition: all 0.3s ease;
+  position: relative;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--royal-glow) !important;
+  text-shadow: 0 0 10px var(--royal-glow);
+  background-image: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background-size: 200px;
+  background-position: -100px;
+  background-repeat: no-repeat;
+  animation: shine 1s forwards;
+}
+
+/* All Categories Dropdown */
+.navbar-nav .nav-link.bg-white {
+  color: var(--royal-base) !important;
+  border: 1px solid var(--royal-accent);
+  background: linear-gradient(130deg, #fff, var(--royal-glow));
+  box-shadow: 0 3px 10px rgba(176, 58, 100, 0.25);
+}
+
+.navbar-nav .nav-link.bg-white:hover {
+  background-color: var(--royal-accent);
+  color: #fff !important;
+}
+
+/* Login Button */
+.btn-outline-light {
+  color: var(--royal-text);
+  border-color: var(--royal-text);
+  transition: all 0.3s ease;
+  box-shadow: 0 0 5px transparent;
 }
 
 .btn-outline-light:hover {
-  background-color: #fff;
-  color: #007bff;
+  background-color: var(--royal-accent);
+  color: #fff;
+  border-color: var(--royal-accent);
+  box-shadow: 0 0 10px var(--royal-accent);
+}
+
+/* Shine Animation */
+@keyframes shine {
+  0% {
+    background-position: -100px;
+  }
+  100% {
+    background-position: 200px;
+  }
+}
+.shopnest-logo {
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  background: linear-gradient(135deg, #6a2c70, #b03a64);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  animation: glowPulse 3s infinite ease-in-out;
+  transition: all 0.4s ease-in-out;
+  cursor: pointer;
+}
+
+.shopnest-logo span {
+  font-weight: 600;
+  color: #e4b8d0;
+}
+
+/* Hover Animation */
+.shopnest-logo:hover {
+  transform: scale(1.03) translateY(-2px);
+  text-shadow: 0 2px 6px rgba(228, 184, 208, 0.3);
+}
+
+/* Glowing Pulse Effect */
+@keyframes glowPulse {
+  0% {
+    text-shadow: 0 0 5px rgba(228, 184, 208, 0.2), 0 0 10px rgba(176, 58, 100, 0.15);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(228, 184, 208, 0.3), 0 0 20px rgba(176, 58, 100, 0.2);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(228, 184, 208, 0.2), 0 0 10px rgba(176, 58, 100, 0.15);
+  }
+}
+
+.navbar-nav .nav-link {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #f1d7e0;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+}
+
+.btn-outline-light {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  border: 1px solid #e2cbd8;
+  color: #ffffff;
+  transition: background 0.3s ease;
+}
+
+.btn-outline-light:hover {
+  background: #e2cbd8;
+  color: #6a2c70;
+}
+.premium-search-bar {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(145deg, #6a2c70, #b03a64);
+  border-radius: 50px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(176, 58, 100, 0.3);
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  transition: box-shadow 0.3s ease;
+}
+
+.premium-search-bar:focus-within {
+  box-shadow: 0 0 15px rgba(255, 140, 200, 0.5);
+}
+
+.premium-search-input {
+  flex: 1;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 50px 0 0 50px;
+  background: transparent;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  font-family: "Poppins", sans-serif;
+}
+
+.premium-search-input::placeholder {
+  color: #f2d6e6;
+  opacity: 0.85;
+  font-weight: 300;
+}
+
+.premium-search-btn {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  padding: 0.7rem 1rem;
+  border-radius: 0 50px 50px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.premium-search-btn:hover {
+  background-color: #f5c6d6;
+}
+
+.premium-search-btn svg {
+  color: #6a2c70;
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+.premium-search-btn:hover svg {
+  transform: scale(1.1);
 }
