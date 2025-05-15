@@ -18,6 +18,7 @@ const ProductList = () => {
 
     fetchProducts();
   }, [refresh]);
+
   const deleteProduct = async (id) => {
     try {
       console.log("Attempting to delete product with ID:", id);
@@ -30,8 +31,6 @@ const ProductList = () => {
       alert("Failed to delete product.");
     }
   };
-  
-  
 
   return (
     <div className="product-list">
@@ -42,6 +41,7 @@ const ProductList = () => {
         <table>
           <thead>
             <tr>
+              <th>Image</th> {/* New image column */}
               <th>Name</th>
               <th>Brand</th>
               <th>Price</th>
@@ -52,6 +52,17 @@ const ProductList = () => {
           <tbody>
             {products.map((product) => (
               <tr key={product._id}>
+                <td>
+                  {product.image ? (
+                    <img 
+                      src={product.image} 
+                      alt={product.name || product.title} 
+                      style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px' }} 
+                    />
+                  ) : (
+                    <span>No Image</span>
+                  )}
+                </td>
                 <td>{product.name || product.title}</td>
                 <td>{product.brand}</td>
                 <td>${product.price}</td>

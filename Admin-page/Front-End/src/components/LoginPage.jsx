@@ -1,4 +1,3 @@
-// LoginPage.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,16 +14,13 @@ const LoginPage = () => {
       .then(res => res.json())
       .then(data => {
         if (data.authenticated) {
-          navigate('/admin'); // Redirect to admin page if authenticated
+          navigate('/admin');
         }
       });
   }, [navigate]);
 
   const sendOtp = async () => {
-    if (!email) {
-      alert('Please enter your email');
-      return;
-    }
+    if (!email) return alert('Please enter your email');
 
     const res = await fetch('http://localhost:5000/api/send-otp', {
       method: 'POST',
@@ -42,10 +38,7 @@ const LoginPage = () => {
   };
 
   const verifyOtp = async () => {
-    if (!email || !otp) {
-      alert('Please fill both email and OTP');
-      return;
-    }
+    if (!email || !otp) return alert('Please fill both email and OTP');
 
     const res = await fetch('http://localhost:5000/api/verify-otp', {
       method: 'POST',
@@ -57,40 +50,98 @@ const LoginPage = () => {
     const data = await res.json();
     if (res.ok) {
       alert('OTP verified successfully!');
-      navigate('/admin'); // Redirect to admin page after OTP verification
+      navigate('/admin');
     } else {
       alert(data.message || 'OTP verification failed');
     }
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      
-      <h2>Email OTP Login</h2>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h2 style={styles.title}>Admin Login</h2>
+        <p style={styles.subtitle}>Login with your email to access the admin portal</p>
 
-      <input
-        type="email"
-        placeholder="Enter email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ display: 'block', marginBottom: '1rem' }}
-      />
-      {!otpSent ? (
-        <button onClick={sendOtp}>Send OTP</button>
-      ) : (
-        <>
-          <input
-            type="text"
-            placeholder="Enter OTP"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            style={{ display: 'block', marginTop: '1rem', marginBottom: '1rem' }}
-          />
-          <button onClick={verifyOtp}>Verify OTP</button>
-        </>
-      )}
+        <input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={styles.input}
+        />
+
+        {!otpSent ? (
+          <button onClick={sendOtp} style={styles.button}>Send OTP</button>
+        ) : (
+          <>
+            <input
+              type="text"
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              style={styles.input}
+            />
+            <button onClick={verifyOtp} style={styles.button}>Verify OTP</button>
+          </>
+        )}
+      </div>
     </div>
   );
+};
+
+const styles = {
+  container: {
+    minHeight: '100vh',
+    backgroundColor: '#fff7f0',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '1rem',
+    fontFamily: 'Lato, sans-serif',
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    padding: '2.5rem 2rem',
+    borderRadius: '16px',
+    boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
+    width: '100%',
+    maxWidth: '400px',
+    textAlign: 'center',
+  },
+  title: {
+    fontSize: '1.8rem',
+    fontWeight: '700',
+    color: '#fc8019',
+    marginBottom: '0.5rem',
+  },
+  subtitle: {
+    fontSize: '0.95rem',
+    color: '#555',
+    marginBottom: '1.5rem',
+  },
+  input: {
+    width: '100%',
+    boxSizing: 'border-box',
+    padding: '0.75rem 1rem',
+    fontSize: '1rem',
+    borderRadius: '10px',
+    border: '1px solid #ddd',
+    marginBottom: '1rem',
+    outline: 'none',
+    transition: 'border 0.3s',
+  },
+  button: {
+    width: '100%',
+    padding: '0.75rem 1rem',
+    backgroundColor: '#fc8019',
+    color: '#fff',
+    fontSize: '1rem',
+    fontWeight: '600',
+    border: 'none',
+    borderRadius: '10px',
+    cursor: 'pointer',
+    transition: 'background 0.3s ease',
+  },
 };
 
 export default LoginPage;

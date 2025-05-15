@@ -1,72 +1,83 @@
-/* ProductList.css */
+/* ProductList.css - Swiggy Theme - Light Version */
 
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #000000, #464646);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .product-list {
-    background: #313030;
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    width: 95%;
-    max-width: 1200px;
-  }
-  
-  .product-list h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: #6a1b9a;
-    font-size: 2rem;
-  }
-  
-  .product-list table {
-    width: 100%;
-    border-collapse: collapse;
-    overflow: hidden;
-    border-radius: 12px;
-  }
-  
-  .product-list th,
-  .product-list td {
-    padding: 1rem;
-    text-align: center;
-  }
-  
-  .product-list thead th {
-    background-color: #6a1b9a;
-    color: rgb(22, 21, 21);
-    text-transform: uppercase;
-    font-size: 14px;
-  }
-  
-  .product-list tbody tr:nth-child(even) {
-    background-color: #131212;
-  }
-  
-  .product-list tbody tr:hover {
-    background-color: #412424;
-  }
-  
-  .product-list button {
-    background-color: #6a1b9a;
-    color: white;
-    padding: 0.6rem 1.2rem;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .product-list button:hover {
-    background-color: #007bff;
-  }
-  
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', 'Helvetica Neue', sans-serif;
+  background-color: #fff7f0; /* changed from dark to light */
+  color: #4a4a4a; /* darker text for readability */
+  min-height: 100vh;
+  width: 100%;
+}
+
+.product-list {
+  width: 100%;
+  min-height: 100vh;
+  padding: 2rem 3rem;
+  box-sizing: border-box;
+  background-color: #fff7f0; /* light background */
+}
+
+.product-list h2 {
+  text-align: center;
+  font-size: 2.4rem;
+  margin-bottom: 2rem;
+  color: #fc8019; /* keep bright orange */
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.product-list table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff1e6; /* lighter table bg */
+  box-shadow: 0 0 0 2px #f5d9b4; /* subtle border */
+}
+
+.product-list thead th {
+  background-color: #f7c784; /* lighter orange header */
+  color: #663300; /* dark brown text */
+  padding: 1rem;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 2px solid #fc8019;
+}
+
+.product-list tbody tr {
+  background-color: #fff3e0; /* very light rows */
+  transition: background-color 0.2s;
+}
+
+.product-list tbody tr:nth-child(even) {
+  background-color: #ffe9cc; /* alternate row light shade */
+}
+
+.product-list tbody tr:hover {
+  background-color: #ffddb3; /* highlight on hover */
+}
+
+.product-list td {
+  padding: 1rem;
+  text-align: center;
+  font-size: 15px;
+  color: #4a4a4a; /* darker text for readability */
+}
+
+.product-list button {
+  background-color: #fc8019; /* bright orange */
+  color: #fff7f0; /* off-white text */
+  padding: 0.5rem 1rem;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease;
+  border-radius: 6px;
+}
+
+.product-list button:hover {
+  background-color: #ff9933; /* lighter orange on hover */
+}
