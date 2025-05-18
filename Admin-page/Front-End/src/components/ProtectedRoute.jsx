@@ -6,7 +6,7 @@ const ProtectedRoute = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/check-auth', {
+    fetch('https://u-design-1.onrender.com/api/check-auth', {
       credentials: 'include',
     })
       .then(res => res.json())

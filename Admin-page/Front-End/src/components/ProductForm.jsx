@@ -43,7 +43,7 @@ function ProductForm() {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/products", data, {
+      await axios.post("https://u-design-1.onrender.com/api/products", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
