@@ -1,0 +1,68 @@
+/* UserList.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', 'Helvetica Neue', sans-serif;
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+.user-list-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 2rem 3rem;
+  box-sizing: border-box;
+  background-color: #121212;
+}
+
+.user-list-container h2 {
+  text-align: center;
+  color: #fc8019;
+  font-size: 2.4rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #1e1e1e;
+  box-shadow: 0 0 0 2px #2a2a2a;
+}
+
+.user-table th,
+.user-table td {
+  padding: 1rem;
+  text-align: left;
+  font-size: 15px;
+}
+
+.user-table thead th {
+  background-color: #2a2a2a;
+  color: #fc8019;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-bottom: 2px solid #fc8019;
+}
+
+.user-table tbody tr:nth-child(even) {
+  background-color: #202020;
+}
+
+.user-table tbody tr:hover {
+  background-color: #2e2e2e;
+}
+
+.error-text {
+  color: #ff4c4c;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.empty-text {
+  color: #aaa;
+  text-align: center;
+  margin-top: 2rem;
+}

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "./UserList.css"; // Add this to use the styles below
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
-  
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/users"); // Changed from 5000 to 5002
+        const response = await axios.get("http://localhost:5000/api/users");
         setUsers(response.data);
       } catch (error) {
         setError("Failed to fetch users");
@@ -20,13 +20,13 @@ const UserList = () => {
   }, []);
 
   return (
-    <div>
+    <div className="user-list-container">
       <h2>User List</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error-text">{error}</p>}
       {users.length === 0 ? (
-        <p>No users found.</p>
+        <p className="empty-text">No users found.</p>
       ) : (
-        <table border="1" cellPadding="10" style={{ width: "100%", textAlign: "left" }}>
+        <table className="user-table">
           <thead>
             <tr>
               <th>Email</th>
