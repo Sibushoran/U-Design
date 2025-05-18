@@ -7,6 +7,8 @@ const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { Resend } = require("resend");
+const MongoStore = require("connect-mongo");
+
 const multer = require("multer");
 const path = require("path");
 
@@ -28,6 +30,10 @@ app.use(session({
   secret: 'otp_secret_key',
   resave: false,
   saveUninitialized: true,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    ttl: 14 * 24 * 60 * 60 // 14 days
+  }),
   cookie: { secure: false },
 }));
 
@@ -35,10 +41,8 @@ app.use(session({
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // =================== DATABASE ===================
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log("✅ Connected to MongoDB"))
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB Error:", err.message));
 
 // =================== AUTH ROUTES ===================
