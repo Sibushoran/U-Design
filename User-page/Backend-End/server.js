@@ -8,7 +8,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { Resend } = require("resend");
 const MongoStore = require("connect-mongo");
-
 const multer = require("multer");
 const path = require("path");
 
@@ -27,12 +26,12 @@ app.use(cors({
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(session({
-  secret: 'otp_secret_key',
+  secret: process.env.SESSION_SECRET || 'otp_secret_key',
   resave: false,
   saveUninitialized: true,
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
-    ttl: 14 * 24 * 60 * 60 // 14 days
+    ttl: 14 * 24 * 60 * 60,
   }),
   cookie: { secure: false },
 }));
@@ -41,9 +40,15 @@ app.use(session({
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // =================== DATABASE ===================
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("❌ MongoDB Error:", err.message));
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log("✅ Connected to MongoDB"))
+.catch((err) => {
+  console.error("❌ MongoDB Connection Error:", err.message);
+  process.exit(1);
+});
 
 // =================== AUTH ROUTES ===================
 const otpStore = {};
@@ -127,8 +132,6 @@ app.post("/api/logout", (req, res) => {
 });
 
 // =================== PRODUCT ROUTES ===================
-
-// Multer setup for image upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, path.join(__dirname, "uploads"));
@@ -140,58 +143,51 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+const formatImageUrl = (imagePath) => {
+  if (!imagePath) return "";
+  return `http://localhost:${PORT}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
+};
+
 // Get all products and users
 app.get("/api/products-and-users", async (req, res) => {
   try {
     const products = await Product.find();
     const users = await User.find();
 
-    const productsWithImageUrls = products.map((product) => {
-      const productObj = product.toObject();
-      return {
-        ...productObj,
-        image: productObj.image
-          ? `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
-          : "",
-      };
-    });
+    const productsWithImageUrls = products.map(p => ({
+      ...p.toObject(),
+      image: formatImageUrl(p.image),
+    }));
 
     res.json({
       products: productsWithImageUrls,
-      users: users,
+      users,
       promoBanners: [],
       promo50Off: {},
       categories: [],
       trendingProducts: [],
-      brands: [...new Set(products.map((p) => p.brand))],
-      ratings: [...new Set(products.map((p) => p.rating))].sort((a, b) => b - a),
+      brands: [...new Set(products.map(p => p.brand))],
+      ratings: [...new Set(products.map(p => p.rating))].sort((a, b) => b - a),
     });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// Get all products
 app.get("/api/products", async (req, res) => {
   try {
     const products = await Product.find();
+    const categories = [...new Set(products.map((p) => p.category))].filter(Boolean);
+    const productsWithImageUrls = products.map(p => ({
+      ...p.toObject(),
+      image: formatImageUrl(p.image),
+    }));
 
-    const productsWithImageUrls = products.map((product) => {
-      const productObj = product.toObject();
-      return {
-        ...productObj,
-        image: productObj.image
-          ? `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
-          : "",
-      };
-    });
-     const categories = [...new Set(products.map((p) => p.category))].filter(Boolean);
-    console.log("📦 Categories:", categories);
     res.json({
       products: productsWithImageUrls,
       promoBanners: [],
       promo50Off: {},
-      categories: categories,
+      categories,
       trendingProducts: [],
       brands: [...new Set(products.map((p) => p.brand))],
       ratings: [...new Set(products.map((p) => p.rating))].sort((a, b) => b - a),
@@ -201,7 +197,6 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
-// Add product
 app.post("/api/products", upload.single("image"), async (req, res) => {
   try {
     const newProduct = new Product({
@@ -215,7 +210,6 @@ app.post("/api/products", upload.single("image"), async (req, res) => {
   }
 });
 
-// Delete product
 app.delete("/api/products/:id", async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id);
@@ -225,6 +219,7 @@ app.delete("/api/products/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 app.get("/api/users", async (req, res) => {
   try {
     const users = await User.find();
@@ -234,33 +229,26 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-// Get all categories
 app.get("/api/categories", async (req, res) => {
   try {
     const products = await Product.find();
-    const categories = [...new Set(products.map((p) => p.category))].filter(Boolean); // Get unique categories
+    const categories = [...new Set(products.map(p => p.category))].filter(Boolean);
     res.json({ categories });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 app.get("/api/search", async (req, res) => {
   const { q } = req.query;
   try {
     const products = await Product.find({
       title: { $regex: q, $options: "i" },
     });
-
-    const productsWithImageUrls = products.map((product) => {
-      const productObj = product.toObject();
-      return {
-        ...productObj,
-        image: productObj.image
-          ? `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
-          : "",
-      };
-    });
-
+    const productsWithImageUrls = products.map(p => ({
+      ...p.toObject(),
+      image: formatImageUrl(p.image),
+    }));
     res.json({ products: productsWithImageUrls });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
