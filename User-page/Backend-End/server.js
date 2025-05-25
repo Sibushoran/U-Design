@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -24,27 +25,30 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(bodyParser.json());
+
+// ✅ Use connect-mongo session store
 app.use(session({
   secret: 'otp_secret_key',
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false },
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: 'sessions',
+  }),
+  cookie: { secure: false }, // true if using HTTPS
 }));
 
 // Serve uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // =================== DATABASE ===================
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log("✅ Connected to MongoDB"))
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB Error:", err.message));
 
 // =================== AUTH ROUTES ===================
 const otpStore = {};
 
-// Signup
 app.post("/api/auth/signup", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -60,7 +64,6 @@ app.post("/api/auth/signup", async (req, res) => {
   }
 });
 
-// Login
 app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -77,7 +80,6 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-// OTP Email Login
 app.post("/api/send-otp", async (req, res) => {
   const { email } = req.body;
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -123,8 +125,6 @@ app.post("/api/logout", (req, res) => {
 });
 
 // =================== PRODUCT ROUTES ===================
-
-// Multer setup for image upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, path.join(__dirname, "uploads"));
@@ -136,12 +136,10 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Get all products and users
 app.get("/api/products-and-users", async (req, res) => {
   try {
     const products = await Product.find();
     const users = await User.find();
-
     const productsWithImageUrls = products.map((product) => {
       const productObj = product.toObject();
       return {
@@ -167,11 +165,9 @@ app.get("/api/products-and-users", async (req, res) => {
   }
 });
 
-// Get all products
 app.get("/api/products", async (req, res) => {
   try {
     const products = await Product.find();
-
     const productsWithImageUrls = products.map((product) => {
       const productObj = product.toObject();
       return {
@@ -181,8 +177,7 @@ app.get("/api/products", async (req, res) => {
           : "",
       };
     });
-     const categories = [...new Set(products.map((p) => p.category))].filter(Boolean);
-    console.log("📦 Categories:", categories);
+    const categories = [...new Set(products.map((p) => p.category))].filter(Boolean);
     res.json({
       products: productsWithImageUrls,
       promoBanners: [],
@@ -197,7 +192,6 @@ app.get("/api/products", async (req, res) => {
   }
 });
 
-// Add product
 app.post("/api/products", upload.single("image"), async (req, res) => {
   try {
     const newProduct = new Product({
@@ -211,7 +205,6 @@ app.post("/api/products", upload.single("image"), async (req, res) => {
   }
 });
 
-// Delete product
 app.delete("/api/products/:id", async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id);
@@ -221,6 +214,7 @@ app.delete("/api/products/:id", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 app.get("/api/users", async (req, res) => {
   try {
     const users = await User.find();
@@ -230,16 +224,16 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-// Get all categories
 app.get("/api/categories", async (req, res) => {
   try {
     const products = await Product.find();
-    const categories = [...new Set(products.map((p) => p.category))].filter(Boolean); // Get unique categories
+    const categories = [...new Set(products.map((p) => p.category))].filter(Boolean);
     res.json({ categories });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 app.get("/api/search", async (req, res) => {
   const { q } = req.query;
   try {
