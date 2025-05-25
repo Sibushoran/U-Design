@@ -11,7 +11,7 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    fetch('https://u-design-1.onrender.com/api/check-auth', {
+    fetch('http://localhost:5000/api/check-auth', {
       credentials: 'include',
     })
       .then(res => res.json())
@@ -24,7 +24,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
-    await fetch("https://u-design-1.onrender.com/api/logout", {
+    await fetch("http://localhost:5000/api/logout", {
       method: "POST",
       credentials: "include",
     });

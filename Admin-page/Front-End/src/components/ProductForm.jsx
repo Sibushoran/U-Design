@@ -43,7 +43,7 @@ function ProductForm() {
     }
 
     try {
-      await axios.post("https://u-design-1.onrender.com/api/products", data, {
+      await axios.post("http://localhost:5000/api/products", data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -87,7 +87,7 @@ function ProductForm() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          background: "#fff7f0",
+          background: "linear-gradient(135deg, #121212, #1a1a1a)",
           fontFamily:
             "'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
           padding: "2rem",

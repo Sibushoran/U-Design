@@ -9,7 +9,7 @@ const ProductList = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("https://u-design-1.onrender.com/api/products");
+        const res = await axios.get("http://localhost:5000/api/products");
         setProducts(res.data.products || []);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -18,11 +18,10 @@ const ProductList = () => {
 
     fetchProducts();
   }, [refresh]);
-
   const deleteProduct = async (id) => {
     try {
       console.log("Attempting to delete product with ID:", id);
-      const res = await axios.delete(`https://u-design-1.onrender.com/api/products/${id}`);
+      const res = await axios.delete(`http://localhost:5000/api/products/${id}`);
       console.log("Backend response:", res.data);
       alert("Product deleted successfully.");
       setRefresh(!refresh);
@@ -31,6 +30,8 @@ const ProductList = () => {
       alert("Failed to delete product.");
     }
   };
+  
+  
 
   return (
     <div className="product-list">
@@ -41,7 +42,6 @@ const ProductList = () => {
         <table>
           <thead>
             <tr>
-              <th>Image</th> {/* New image column */}
               <th>Name</th>
               <th>Brand</th>
               <th>Price</th>
@@ -52,17 +52,6 @@ const ProductList = () => {
           <tbody>
             {products.map((product) => (
               <tr key={product._id}>
-                <td>
-                  {product.image ? (
-                    <img 
-                      src={product.image} 
-                      alt={product.name || product.title} 
-                      style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px' }} 
-                    />
-                  ) : (
-                    <span>No Image</span>
-                  )}
-                </td>
                 <td>{product.name || product.title}</td>
                 <td>{product.brand}</td>
                 <td>${product.price}</td>
