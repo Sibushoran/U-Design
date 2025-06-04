@@ -8,7 +8,7 @@ export const Contact = () => {
     <div className='contact-container'>
         <div className='contact-content'>
             <div className='contact-card'>
-                <img src="/src/assets/contact-1.jpeg" alt="contact" />
+                <img src="/assets/contact-1.jpeg" alt="contact" />
                 <h2>Contact Us</h2>
                 <nav className="breadcrumb">
                     <a href="/" className='home'>Home</a>

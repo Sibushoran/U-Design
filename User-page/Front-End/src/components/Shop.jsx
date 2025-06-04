@@ -187,7 +187,7 @@ const Shop = () => {
       {/* Banner */}
       <div className='about-content'>
         <div className='about-card'>
-          <img src="/src/assets/about-1.jpg" alt="about" />
+          <img src="/assets/about-1.jpg" alt="about" />
           <h2>Shop</h2> 
           <p>Home &gt; Shop</p>
 

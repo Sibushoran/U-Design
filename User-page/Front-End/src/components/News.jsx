@@ -9,7 +9,7 @@ const News = () => {
   const blogPosts = [
     {
       id: 1,
-      image: "/src/assets/blog.jpg",
+      image: "/assets/blog.jpg",
       title: "5 Innovative Ways To Increasing Your Home’s Value This Year",
       date: "22 October 2024 in Phone",
       author: "John Doe",
@@ -20,7 +20,7 @@ const News = () => {
     },
     {
       id: 2,
-      image: "/src/assets/blog-2.jpg",
+      image: "/assets/blog-2.jpg",
       title: "Tech That Takes Yours Outdoor Spaces To The Next-level Gadget",
       date: "22 October 2024 in Phone",
       author: "John Doe",
@@ -31,7 +31,7 @@ const News = () => {
     },
     {
       id: 3,
-      image: "/src/assets/blog-3.jpg",
+      image: "/assets/blog-3.jpg",
       title: "Help Your Company Shift to a Digital Culture",
       date: "22 October 2024 in Phone",
       author: "John Doe",
@@ -42,7 +42,7 @@ const News = () => {
     },
     {
       id: 4,
-      image: "/src/assets/blog-4.jpg",
+      image: "/assets/blog-4.jpg",
       title: "Interactive Push Notification in Home Center",
       date: "22 October 2024 in Phone",
       author: "John Doe",
@@ -53,7 +53,7 @@ const News = () => {
     },
     {
       id: 5,
-      image: "/src/assets/blog-5.jpg",
+      image: "/assets/blog-5.jpg",
       title: "Google Analytics Checklist : Is Your Website Data Accurate?",
       date: "22 October 2024 in Phone",
       author: "John Doe",
@@ -64,7 +64,7 @@ const News = () => {
     },
     {
       id: 6,
-      image: "/src/assets/blog-6.jpg",
+      image: "/assets/blog-6.jpg",
       title: "Personal Debt or Company Debt? We Explore Your Options",
       date: "22 October 2024 in Phone",
       author: "John Doe",
@@ -154,7 +154,7 @@ const News = () => {
               {[1, 2, 3].map((_, i) => (
                 <div className="sidebar-post-item" key={i}>
                   <div className="posts-img">
-                    <img src={`/src/assets/blog-${i + 1}.jpg`} alt="Post" />
+                    <img src={`/assets/blog-${i + 1}.jpg`} alt="Post" />
                   </div>
                   <div className="posts-content">
                     <p className="post-date">22 October 2024</p>

@@ -2,25 +2,25 @@ import React from "react";
 import "./Front.css";
 
 // Banner Images
-import banner1 from "../assets/bannerr1.jpg";
-import banner2 from "../assets/bannerr2.jpg";
-import banner3 from "../assets/bannerr3.jpg";
+import banner1 from "/assets/bannerr1.jpg";
+import banner2 from "/assets/bannerr2.jpg";
+import banner3 from "/assets/bannerr3.jpg";
 
 // Category Images
-import headphone from "../assets/headphone.jpg";
-import tv from "../assets/tv.jpg";
-import watch from "../assets/watch.jpg";
-import laptop from "../assets/laptop.jpg";
-import speaker from "../assets/speaker.jpg";
-import accessory from "../assets/usb.jpg";
-import sound from "../assets/sound.jpg";
+import headphone from "/assets/headphone.jpg";
+import tv from "/assets/tv.jpg";
+import watch from "/assets/watch.jpg";
+import laptop from "/assets/laptop.jpg";
+import speaker from "/assets/speaker.jpg";
+import accessory from "/assets/usb.jpg";
+import sound from "/assets/sound.jpg";
 
 // Deal Images
-import dealImage from "../assets/bg-3.jpg";
-import phone1 from "../assets/phone1.jpg";
-import phone2 from "../assets/phone2.jpg";
-import mouse from "../assets/mouse.jpg";
-import watch2 from "../assets/watch2.jpg";
+import dealImage from "/assets/bg-3.jpg";
+import phone1 from "/assets/phone1.jpg";
+import phone2 from "/assets/phone2.jpg";
+import mouse from "/assets/mouse.jpg";
+import watch2 from "/assets/watch2.jpg";
 
 const Front = () => {
   const categories = [
