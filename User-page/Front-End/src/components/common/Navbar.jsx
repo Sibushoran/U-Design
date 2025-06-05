@@ -37,7 +37,7 @@ const Navbar = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("https://shopnest-server.vercel.app/api/categories");
+        const res = await axios.get("http://localhost:5000/api/categories");
         setCategories(res.data.categories);
       } catch (error) {
         console.error("Error fetching categories:", error);

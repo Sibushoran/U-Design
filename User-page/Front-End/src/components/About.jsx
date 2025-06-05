@@ -32,7 +32,7 @@ export const About = () => {
         <div className='video-section'>
             <div className='video-left'>
                 <div className='video-container'>
-                <img src="/assets/about-3.jpg" alt="play" className='video-thumbnail' />
+                <img src="/src/assets/about-3.jpg" alt="play" className='video-thumbnail' />
                 <div className='play-icon' onClick={() => window.open("https://www.youtube.com/embed/XHOmBV4js_E?feature=oembed&start&end&wmode=opaque&loop=0&controls=1&mute=0&rel=0&modestbranding=0", "_blank")}>
                     ▶
                 </div>
@@ -53,12 +53,12 @@ export const About = () => {
 
         <div className="brand-banner">
             <div className="brand-content">
-                <img src="/assets/brand-1.png" alt="Brand" className="brand-image" />
-                <img src="/assets/brand-2.png" alt="Brand" className="brand-image" />
-                <img src="/assets/brand-3.png" alt="Brand" className="brand-image" />
-                <img src="/assets/brand-4.png" alt="Brand" className="brand-image" />                    
-                <img src="/assets/brand-5.png" alt="Brand" className="brand-image" />
-                <img src="/assets/brand-6.png" alt="Brand" className="brand-image" />
+                <img src="/src/assets/brand-1.png" alt="Brand" className="brand-image" />
+                <img src="/src/assets/brand-2.png" alt="Brand" className="brand-image" />
+                <img src="/src/assets/brand-3.png" alt="Brand" className="brand-image" />
+                <img src="/src/assets/brand-4.png" alt="Brand" className="brand-image" />                    
+                <img src="/src/assets/brand-5.png" alt="Brand" className="brand-image" />
+                <img src="/src/assets/brand-6.png" alt="Brand" className="brand-image" />
             </div>
         </div>
 
@@ -88,7 +88,7 @@ export const About = () => {
 
         <div className='about-last'>
             <div className='last-card'>
-                <img src="/assets/about-4.jpg" alt="about" />
+                <img src="/src/assets/about-4.jpg" alt="about" />
                 <h3>
                 The most important advantage of working with an<br/> experienced specialist is time saving, do not eliminate it!</h3>
             </div>

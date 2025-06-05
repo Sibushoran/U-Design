@@ -40,7 +40,7 @@ const Shop = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("https://shopnest-server.vercel.app/api/products");
+        const res = await axios.get("http://localhost:5000/api/products");
         const data = res.data;
         const allProducts = data.products || [];
          console.log("Raw products from API:", allProducts);
@@ -79,7 +79,7 @@ const Shop = () => {
       const fetchSearchResults = async () => {
         try {
           const { data } = await axios.get(
-            `https://shopnest-server.vercel.app/api/search?q=${encodeURIComponent(searchQuery)}`
+            `http://localhost:5000/api/search?q=${encodeURIComponent(searchQuery)}`
           );
 
           const cloudinaryBaseURL = "https://res.cloudinary.com/dxmhwf0ax/image/upload/";
