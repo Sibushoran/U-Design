@@ -1,4 +1,4 @@
-const Product = require('../models/Product'); // Assuming Product model exists
+const Product = require('../models/Product.cjs'); // Assuming Product model exists
 
 // Controller function for adding a product
 const addProduct = async (req, res) => {
