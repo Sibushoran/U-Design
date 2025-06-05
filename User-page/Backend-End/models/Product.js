@@ -1,5 +1,5 @@
 // models/Product.js
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
   name: String,
@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema({
   colors: [String],
 });
 
-// Avoid model overwrite error in development
+// Check if the model already exists to avoid redefining it
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
-export default Product;
+module.exports = Product;

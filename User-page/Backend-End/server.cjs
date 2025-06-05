@@ -1,30 +1,25 @@
-// server.js (or app.js, your main file)
-import dotenv from "dotenv";
-dotenv.config();
+// server.js (CommonJS version)
+require("dotenv").config();
 
-import express from "express";
-import mongoose from "mongoose";
-import cors from "cors";
-import session from "express-session";
-import MongoStore from "connect-mongo";
-import bodyParser from "body-parser";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { Resend } from "resend";
-import multer from "multer";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
-import cloudinary from "./utils/cloudinary.js";
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const bodyParser = require("body-parser");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { Resend } = require("resend");
+const multer = require("multer");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("./utils/cloudinary.js");
 
-import User from "./models/User.js";
-import Product from "./models/Product.js";
+const User = require("./models/User.js");
+const Product = require("./models/Product.js");
 
-import path from "path";
-import { fileURLToPath } from "url";
+const path = require("path");
 
-// Fix __dirname in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+// __dirname is available by default in CommonJS
 const app = express();
 const PORT = process.env.PORT || 5000;
 const resend = new Resend(process.env.RESEND_API_KEY);

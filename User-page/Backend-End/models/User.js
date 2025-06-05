@@ -1,18 +1,16 @@
-// models/User.js
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
+// Define the User schema
 const userSchema = new mongoose.Schema({
   email: {
-    type: String,
-    required: true,
+    type: String,  // The type of this field is a string.
+    required: true,  // This field is mandatory.
   },
   password: {
-    type: String,
-    required: true,
+    type: String,  // The type of this field is a string (hashed password).
+    required: true,  // This field is mandatory.
   },
 });
 
-// Avoid model overwrite error in development
-const User = mongoose.models.User || mongoose.model("User", userSchema);
-
-export default User;
+// Create and export the User model using the defined schema
+module.exports = mongoose.model("User", userSchema);
