@@ -15,6 +15,10 @@ function ProductForm() {
   });
 
   const [preview, setPreview] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+ const CLOUD_NAME = "dxmhwf0ax";         // ← your actual cloud name
+const UPLOAD_PRESET = "shopnest";    // Replace with your unsigned upload preset
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,32 +30,72 @@ function ProductForm() {
     setPreview(URL.createObjectURL(file));
   };
 
+  const uploadToCloudinary = async (file) => {
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", UPLOAD_PRESET);
+    data.append("cloud_name", CLOUD_NAME);
+
+
+    const res = await axios.post(
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      data
+    );
+
+    return res.data.secure_url; // return the image URL
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("brand", formData.brand);
-    data.append("category", formData.category);
-    data.append("price", parseFloat(formData.price) || 0);
-    data.append("originalPrice", parseFloat(formData.originalPrice) || 0);
-    data.append("tag", formData.tag);
-    data.append("rating", parseFloat(formData.rating) || 0);
-    data.append("colors", formData.colors);
-    if (formData.image) {
-      data.append("image", formData.image);
+    if (!formData.name.trim() || !formData.price.trim()) {
+      alert("Please enter required fields: Product Name and Price");
+      return;
     }
 
     try {
-      await axios.post("http://localhost:5000/api/products", data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      setSubmitting(true);
+
+      let imageUrl = "";
+
+      // Upload to Cloudinary if an image is selected
+      if (formData.image) {
+        imageUrl = await uploadToCloudinary(formData.image);
+      }
+
+      // Send to your backend
+      const payload = {
+        name: formData.name,
+        brand: formData.brand,
+        category: formData.category,
+        price: parseFloat(formData.price) || 0,
+        originalPrice: parseFloat(formData.originalPrice) || 0,
+        tag: formData.tag,
+        rating: parseFloat(formData.rating) || 0,
+        colors: formData.colors,
+        image: imageUrl,
+      };
+
+      await axios.post("http://localhost:5000/api/products", payload);
       alert("✅ Product added!");
+
+      setFormData({
+        name: "",
+        brand: "",
+        category: "",
+        price: "",
+        originalPrice: "",
+        tag: "",
+        colors: "",
+        rating: "",
+        image: null,
+      });
+      setPreview(null);
     } catch (err) {
       console.error("❌ Failed to add product:", err);
       alert("Failed to add product. Check console for errors.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -71,19 +115,10 @@ function ProductForm() {
 
   return (
     <>
-      {/* Global box-sizing fix */}
-      <style>
-        {`
-          * {
-            box-sizing: border-box;
-          }
-        `}
-      </style>
-
+      <style>{`* { box-sizing: border-box; }`}</style>
       <div
         style={{
           minHeight: "100vh",
-          width: "100%",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -102,21 +137,12 @@ function ProductForm() {
             width: "100%",
             maxWidth: "900px",
             display: "flex",
-            flexWrap: "wrap", // allows wrapping if narrow screen
+            flexWrap: "wrap",
             gap: "2rem",
             boxShadow: "0 15px 40px rgba(255, 136, 0, 0.25)",
           }}
         >
-          {/* Left column */}
-          <div
-            style={{
-              flex: "1 1 300px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
-              minWidth: 0,
-            }}
-          >
+          <div style={{ flex: "1 1 300px", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
             {leftFields.map(({ name, placeholder }) => (
               <input
                 key={name}
@@ -131,25 +157,12 @@ function ProductForm() {
                   fontSize: "16px",
                   fontWeight: "600",
                   color: "#333",
-                  outline: "none",
-                  transition: "border-color 0.3s",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#ff6600")}
-                onBlur={(e) => (e.target.style.borderColor = "#ff6600")}
               />
             ))}
           </div>
 
-          {/* Right column */}
-          <div
-            style={{
-              flex: "1 1 300px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.5rem",
-              minWidth: 0,
-            }}
-          >
+          <div style={{ flex: "1 1 300px", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
             {rightFields.map(({ name, placeholder }) => (
               <input
                 key={name}
@@ -164,17 +177,12 @@ function ProductForm() {
                   fontSize: "16px",
                   fontWeight: "600",
                   color: "#333",
-                  outline: "none",
-                  transition: "border-color 0.3s",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#ff6600")}
-                onBlur={(e) => (e.target.style.borderColor = "#ff6600")}
               />
             ))}
 
             <input
               type="file"
-              name="image"
               accept="image/*"
               onChange={handleFileChange}
               style={{
@@ -185,63 +193,33 @@ function ProductForm() {
                 cursor: "pointer",
                 color: "#ff6600",
                 backgroundColor: "#fff",
-                transition: "border-color 0.3s",
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#ff6600")}
-              onBlur={(e) => (e.target.style.borderColor = "#ff6600")}
             />
 
-            {preview && (
-              <div
-                style={{
-                  marginTop: "1rem",
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  border: "2px solid #ff6600",
-                  boxShadow: "0 0 8px #ff6600",
-                  maxHeight: "220px",
-                }}
-              >
-                <img
-                  src={preview}
-                  alt="Preview"
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    objectFit: "cover",
-                  }}
-                />
+            {preview ? (
+              <div style={{ marginTop: "1rem", borderRadius: "12px", overflow: "hidden", border: "2px solid #ff6600" }}>
+                <img src={preview} alt="Preview" style={{ width: "100%", objectFit: "cover" }} />
               </div>
-            )}
+            ): null}
           </div>
 
-          {/* Submit button below columns */}
-          <div
-            style={{
-              width: "100%",
-              marginTop: "2rem",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
+          <div style={{ width: "100%", marginTop: "2rem", display: "flex", justifyContent: "center" }}>
             <button
               type="submit"
+              disabled={submitting}
               style={{
                 padding: "1rem 3rem",
-                backgroundColor: "#ff6600",
+                backgroundColor: submitting ? "#cc5200" : "#ff6600",
                 color: "#fff",
                 fontWeight: "700",
                 fontSize: "18px",
                 borderRadius: "40px",
                 border: "none",
-                cursor: "pointer",
+                cursor: submitting ? "not-allowed" : "pointer",
                 boxShadow: "0 6px 12px rgba(255, 102, 0, 0.7)",
-                transition: "background-color 0.3s",
               }}
-              onMouseEnter={(e) => (e.target.style.backgroundColor = "#cc5200")}
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "#ff6600")}
             >
-              Add Product
+              {submitting ? "Adding..." : "Add Product"}
             </button>
           </div>
         </form>

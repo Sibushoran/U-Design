@@ -9,7 +9,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { Resend } = require("resend");
 const multer = require("multer");
-const path = require("path");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("./utils/cloudinary");
 
 const User = require("./models/User");
 const Product = require("./models/Product");
@@ -17,6 +18,7 @@ const Product = require("./models/Product");
 const app = express();
 const PORT = process.env.PORT || 5000;
 const resend = new Resend(process.env.RESEND_API_KEY);
+const path = require("path");
 
 // =================== MIDDLEWARE ===================
 app.use(cors({
@@ -26,7 +28,6 @@ app.use(cors({
 app.use(express.json());
 app.use(bodyParser.json());
 
-// ✅ Use connect-mongo session store
 app.use(session({
   secret: 'otp_secret_key',
   resave: false,
@@ -35,10 +36,10 @@ app.use(session({
     mongoUrl: process.env.MONGO_URI,
     collectionName: 'sessions',
   }),
-  cookie: { secure: false }, // true if using HTTPS
+  cookie: { secure: false }, // Set true if HTTPS
 }));
 
-// Serve uploaded images
+// Serve uploaded images folder (if any local uploads)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // =================== DATABASE ===================
@@ -60,6 +61,7 @@ app.post("/api/auth/signup", async (req, res) => {
     await user.save();
     res.status(201).json({ message: "User created successfully" });
   } catch (err) {
+    console.error("Signup error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -76,6 +78,7 @@ app.post("/api/auth/login", async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
     res.json({ token });
   } catch (err) {
+    console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -94,6 +97,7 @@ app.post("/api/send-otp", async (req, res) => {
     });
     res.json({ message: "OTP sent to email" });
   } catch (error) {
+    console.error("OTP send error:", error);
     res.status(500).json({ message: "Failed to send OTP", error });
   }
 });
@@ -125,13 +129,12 @@ app.post("/api/logout", (req, res) => {
 });
 
 // =================== PRODUCT ROUTES ===================
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "uploads"));
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "ecommerce-products",
+    allowed_formats: ["jpg", "jpeg", "png"],
+    transformation: [{ width: 800, height: 800, crop: "limit" }],
   },
 });
 const upload = multer({ storage });
@@ -140,19 +143,22 @@ app.get("/api/products-and-users", async (req, res) => {
   try {
     const products = await Product.find();
     const users = await User.find();
+
     const productsWithImageUrls = products.map((product) => {
       const productObj = product.toObject();
       return {
         ...productObj,
         image: productObj.image
-          ? `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
+          ? productObj.image.startsWith("http") // already full URL
+            ? productObj.image
+            : `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
           : "",
       };
     });
 
     res.json({
       products: productsWithImageUrls,
-      users: users,
+      users,
       promoBanners: [],
       promo50Off: {},
       categories: [],
@@ -161,6 +167,7 @@ app.get("/api/products-and-users", async (req, res) => {
       ratings: [...new Set(products.map((p) => p.rating))].sort((a, b) => b - a),
     });
   } catch (err) {
+    console.error("Error fetching products and users:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -173,7 +180,9 @@ app.get("/api/products", async (req, res) => {
       return {
         ...productObj,
         image: productObj.image
-          ? `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
+          ? productObj.image.startsWith("http")
+            ? productObj.image
+            : `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
           : "",
       };
     });
@@ -182,28 +191,46 @@ app.get("/api/products", async (req, res) => {
       products: productsWithImageUrls,
       promoBanners: [],
       promo50Off: {},
-      categories: categories,
+      categories,
       trendingProducts: [],
       brands: [...new Set(products.map((p) => p.brand))],
       ratings: [...new Set(products.map((p) => p.rating))].sort((a, b) => b - a),
     });
   } catch (err) {
+    console.error("Error fetching products:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
 app.post("/api/products", upload.single("image"), async (req, res) => {
   try {
+    console.log("REQ BODY:", req.body);
+    console.log("REQ FILE:", req.file);
+
+    // Parse colors array
+    const colorsArray = req.body.colors
+      ? req.body.colors.split(",").map(c => c.trim()).filter(Boolean)
+      : [];
+
+    // Use image URL from req.file.path if file uploaded, else from req.body.image
+    const imageUrl = req.file ? req.file.path : (req.body.image || "");
+
     const newProduct = new Product({
       ...req.body,
-      image: req.file ? `/uploads/${req.file.filename}` : "",
+      colors: colorsArray,
+      image: imageUrl,
     });
+
+    console.log("Saving product:", newProduct);
+
     await newProduct.save();
     res.status(201).json({ message: "✅ Product added", product: newProduct });
   } catch (err) {
-    res.status(500).json({ error: "Failed to add product" });
+    console.error("❌ Failed to add product:", err);
+    res.status(500).json({ error: "Failed to add product", details: err.message });
   }
 });
+
 
 app.delete("/api/products/:id", async (req, res) => {
   try {
@@ -211,6 +238,7 @@ app.delete("/api/products/:id", async (req, res) => {
     if (!deleted) return res.status(404).json({ message: "Product not found" });
     res.json({ message: "✅ Product deleted" });
   } catch (error) {
+    console.error("Error deleting product:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -220,6 +248,7 @@ app.get("/api/users", async (req, res) => {
     const users = await User.find();
     res.json(users);
   } catch (err) {
+    console.error("Error fetching users:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -230,6 +259,7 @@ app.get("/api/categories", async (req, res) => {
     const categories = [...new Set(products.map((p) => p.category))].filter(Boolean);
     res.json({ categories });
   } catch (err) {
+    console.error("Error fetching categories:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -246,13 +276,16 @@ app.get("/api/search", async (req, res) => {
       return {
         ...productObj,
         image: productObj.image
-          ? `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
+          ? productObj.image.startsWith("http")
+            ? productObj.image
+            : `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
           : "",
       };
     });
 
     res.json({ products: productsWithImageUrls });
   } catch (err) {
+    console.error("Search error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
