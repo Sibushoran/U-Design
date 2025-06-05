@@ -12,10 +12,10 @@ const jwt = require("jsonwebtoken");
 const { Resend } = require("resend");
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("./utils/cloudinary.cjs");
+const cloudinary = require("./utils/cloudinary.js");
 
-const User = require("./models/User.cjs");
-const Product = require("./models/Product.cjs");
+const User = require("./models/User.js");
+const Product = require("./models/Product.js");
 
 const path = require("path");
 
