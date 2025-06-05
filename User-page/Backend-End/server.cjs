@@ -31,6 +31,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(bodyParser.json());
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 app.use(session({
   secret: 'otp_secret_key',
