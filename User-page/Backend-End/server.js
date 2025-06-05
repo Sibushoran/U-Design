@@ -218,6 +218,8 @@ app.post("/api/products", upload.single("image"), async (req, res) => {
     const newProduct = new Product({
       ...req.body,
       colors: colorsArray,
+
+      
       image: imageUrl,
     });
 
