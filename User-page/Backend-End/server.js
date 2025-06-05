@@ -1,24 +1,33 @@
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
-const bodyParser = require("body-parser");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { Resend } = require("resend");
-const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("./utils/cloudinary");
+// server.js (or app.js, your main file)
+import dotenv from "dotenv";
+dotenv.config();
 
-const User = require("./models/User");
-const Product = require("./models/Product");
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import bodyParser from "body-parser";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { Resend } from "resend";
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "./utils/cloudinary.js";
+
+import User from "./models/User.js";
+import Product from "./models/Product.js";
+
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Fix __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const resend = new Resend(process.env.RESEND_API_KEY);
-const path = require("path");
 
 // =================== MIDDLEWARE ===================
 app.use(cors({
@@ -149,7 +158,7 @@ app.get("/api/products-and-users", async (req, res) => {
       return {
         ...productObj,
         image: productObj.image
-          ? productObj.image.startsWith("http") // already full URL
+          ? productObj.image.startsWith("http")
             ? productObj.image
             : `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
           : "",
@@ -218,8 +227,6 @@ app.post("/api/products", upload.single("image"), async (req, res) => {
     const newProduct = new Product({
       ...req.body,
       colors: colorsArray,
-
-      
       image: imageUrl,
     });
 
@@ -232,7 +239,6 @@ app.post("/api/products", upload.single("image"), async (req, res) => {
     res.status(500).json({ error: "Failed to add product", details: err.message });
   }
 });
-
 
 app.delete("/api/products/:id", async (req, res) => {
   try {
