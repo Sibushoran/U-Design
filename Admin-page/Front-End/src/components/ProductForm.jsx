@@ -76,7 +76,7 @@ const UPLOAD_PRESET = "shopnest";    // Replace with your unsigned upload preset
         image: imageUrl,
       };
 
-      await axios.post("http://localhost:5000/api/products", payload);
+      await axios.post("https://shopnest-roan.vercel.app/api/products", payload);
       alert("✅ Product added!");
 
       setFormData({

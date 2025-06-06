@@ -8,7 +8,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/check-auth', {
+    fetch('https://shopnest-roan.vercel.app/api/check-auth', {
       credentials: 'include',
     })
       .then(res => res.json())
@@ -22,7 +22,7 @@ const LoginPage = () => {
   const sendOtp = async () => {
     if (!email) return alert('Please enter your email');
 
-    const res = await fetch('http://localhost:5000/api/send-otp', {
+    const res = await fetch('https://shopnest-roan.vercel.app/api/send-otp', {
       method: 'POST',
       headers:   { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
@@ -40,7 +40,7 @@ const LoginPage = () => {
   const verifyOtp = async () => {
     if (!email || !otp) return alert('Please fill both email and OTP');
 
-    const res = await fetch('http://localhost:5000/api/verify-otp', {
+    const res = await fetch('https://shopnest-roan.vercel.app/api/verify-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, otp }),

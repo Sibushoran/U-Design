@@ -11,7 +11,7 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/check-auth', {
+    fetch('https://shopnest-roan.vercel.app/api/check-auth', {
       credentials: 'include',
     })
       .then(res => res.json())
@@ -24,7 +24,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
-    await fetch("http://localhost:5000/api/logout", {
+    await fetch("https://shopnest-roan.vercel.app/api/logout", {
       method: "POST",
       credentials: "include",
     });
