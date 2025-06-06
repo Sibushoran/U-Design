@@ -9,7 +9,7 @@ const ProductList = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("https://shopnest-roan.vercel.app/api/products");
+        const res = await axios.get("https://u-design-os78dni1q-sibushorans-projects.vercel.app/api/products");
         setProducts(res.data.products || []);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -21,7 +21,7 @@ const ProductList = () => {
   const deleteProduct = async (id) => {
     try {
       console.log("Attempting to delete product with ID:", id);
-      const res = await axios.delete(`https://shopnest-roan.vercel.app/api/products/${id}`);
+      const res = await axios.delete(`https://u-design-os78dni1q-sibushorans-projects.vercel.app/api/products/${id}`);
       console.log("Backend response:", res.data);
       alert("Product deleted successfully.");
       setRefresh(!refresh);

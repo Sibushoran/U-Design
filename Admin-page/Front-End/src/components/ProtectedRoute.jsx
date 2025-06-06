@@ -6,7 +6,7 @@ const ProtectedRoute = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    fetch('https://shopnest-roan.vercel.app/api/check-auth', {
+    fetch('https://u-design-os78dni1q-sibushorans-projects.vercel.app/api/check-auth', {
       credentials: 'include',
     })
       .then(res => res.json())

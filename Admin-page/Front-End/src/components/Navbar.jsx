@@ -11,7 +11,7 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
-    fetch('https://shopnest-roan.vercel.app/api/check-auth', {
+    fetch('https://u-design-os78dni1q-sibushorans-projects.vercel.app/api/check-auth', {
       credentials: 'include',
     })
       .then(res => res.json())
@@ -24,7 +24,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
-    await fetch("https://shopnest-roan.vercel.app/api/logout", {
+    await fetch("https://u-design-os78dni1q-sibushorans-projects.vercel.app/api/logout", {
       method: "POST",
       credentials: "include",
     });

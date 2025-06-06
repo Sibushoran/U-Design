@@ -9,7 +9,7 @@ const UserList = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("https://shopnest-roan.vercel.app/api/users");
+        const response = await axios.get("https://u-design-os78dni1q-sibushorans-projects.vercel.app/api/users");
         setUsers(response.data);
       } catch (error) {
         setError("Failed to fetch users");
