@@ -1,6 +1,5 @@
-// server.js (CommonJS version)
+// server.js (CommonJS)
 require("dotenv").config();
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -16,45 +15,54 @@ const cloudinary = require("./utils/cloudinary.js");
 
 const User = require("./models/User.js");
 const Product = require("./models/Product.js");
-
 const path = require("path");
 
-// __dirname is available by default in CommonJS
 const app = express();
 const PORT = process.env.PORT || 5000;
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// =================== MIDDLEWARE ===================
+// ========= MIDDLEWARE =========
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174','http://localhost:5175',
-    'https://shopnest-3iv8-ixz1py1h8-sibushorans-projects.vercel.app', 'https://shopnest-3iv8.vercel.app',  // 👈 add this
-    'https://shopnest.vercel.app','https://u-design-os78dni1q-sibushorans-projects.vercel.app','https://shopnest-git-master-sibushorans-projects.vercel.app',  ],
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'https://shopnest.vercel.app',
+    'https://shopnest-3iv8.vercel.app',
+    'https://shopnest-3iv8-ixz1py1h8-sibushorans-projects.vercel.app',
+    'https://shopnest-git-master-sibushorans-projects.vercel.app',
+    'https://u-design-os78dni1q-sibushorans-projects.vercel.app'
+  ],
   credentials: true,
 }));
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 app.use(session({
-  secret: 'otp_secret_key',
+  secret: process.env.SESSION_SECRET || 'otp_secret_key',
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
     collectionName: 'sessions',
   }),
-  cookie: { secure: false }, // Set true if HTTPS
+  cookie: {
+    secure: process.env.NODE_ENV === "production", // true in production (HTTPS)
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
+  }
 }));
 
-// Serve uploaded images folder (if any local uploads)
+// ========== STATIC ==========
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// =================== DATABASE ===================
+// ========== DATABASE ==========
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("❌ MongoDB Error:", err.message));
 
-// =================== AUTH ROUTES ===================
+// ========== AUTH ==========
 const otpStore = {};
 
 app.post("/api/auth/signup", async (req, res) => {
@@ -77,10 +85,9 @@ app.post("/api/auth/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
-
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
     res.json({ token });
@@ -130,12 +137,12 @@ app.get("/api/check-auth", (req, res) => {
 
 app.post("/api/logout", (req, res) => {
   req.session.destroy(() => {
-    res.clearCookie("connect.sid");
+    res.clearCookie("connect.sid", { path: '/' });
     res.json({ message: "Logged out" });
   });
 });
 
-// =================== PRODUCT ROUTES ===================
+// ========== PRODUCT ROUTES ==========
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
@@ -146,22 +153,20 @@ const storage = new CloudinaryStorage({
 });
 const upload = multer({ storage });
 
+function getFullUrl(req, imagePath) {
+  return imagePath.startsWith("http")
+    ? imagePath
+    : `${req.protocol}://${req.get("host")}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
+}
+
 app.get("/api/products-and-users", async (req, res) => {
   try {
     const products = await Product.find();
     const users = await User.find();
-
-    const productsWithImageUrls = products.map((product) => {
-      const productObj = product.toObject();
-      return {
-        ...productObj,
-        image: productObj.image
-          ? productObj.image.startsWith("http")
-            ? productObj.image
-            : `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
-          : "",
-      };
-    });
+    const productsWithImageUrls = products.map(p => ({
+      ...p.toObject(),
+      image: p.image ? getFullUrl(req, p.image) : "",
+    }));
 
     res.json({
       products: productsWithImageUrls,
@@ -170,8 +175,8 @@ app.get("/api/products-and-users", async (req, res) => {
       promo50Off: {},
       categories: [],
       trendingProducts: [],
-      brands: [...new Set(products.map((p) => p.brand))],
-      ratings: [...new Set(products.map((p) => p.rating))].sort((a, b) => b - a),
+      brands: [...new Set(products.map(p => p.brand))],
+      ratings: [...new Set(products.map(p => p.rating))].sort((a, b) => b - a),
     });
   } catch (err) {
     console.error("Error fetching products and users:", err);
@@ -182,26 +187,20 @@ app.get("/api/products-and-users", async (req, res) => {
 app.get("/api/products", async (req, res) => {
   try {
     const products = await Product.find();
-    const productsWithImageUrls = products.map((product) => {
-      const productObj = product.toObject();
-      return {
-        ...productObj,
-        image: productObj.image
-          ? productObj.image.startsWith("http")
-            ? productObj.image
-            : `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
-          : "",
-      };
-    });
-    const categories = [...new Set(products.map((p) => p.category))].filter(Boolean);
+    const productsWithImageUrls = products.map(p => ({
+      ...p.toObject(),
+      image: p.image ? getFullUrl(req, p.image) : "",
+    }));
+
+    const categories = [...new Set(products.map(p => p.category))].filter(Boolean);
     res.json({
       products: productsWithImageUrls,
       promoBanners: [],
       promo50Off: {},
       categories,
       trendingProducts: [],
-      brands: [...new Set(products.map((p) => p.brand))],
-      ratings: [...new Set(products.map((p) => p.rating))].sort((a, b) => b - a),
+      brands: [...new Set(products.map(p => p.brand))],
+      ratings: [...new Set(products.map(p => p.rating))].sort((a, b) => b - a),
     });
   } catch (err) {
     console.error("Error fetching products:", err);
@@ -211,15 +210,7 @@ app.get("/api/products", async (req, res) => {
 
 app.post("/api/products", upload.single("image"), async (req, res) => {
   try {
-    console.log("REQ BODY:", req.body);
-    console.log("REQ FILE:", req.file);
-
-    // Parse colors array
-    const colorsArray = req.body.colors
-      ? req.body.colors.split(",").map(c => c.trim()).filter(Boolean)
-      : [];
-
-    // Use image URL from req.file.path if file uploaded, else from req.body.image
+    const colorsArray = req.body.colors?.split(",").map(c => c.trim()).filter(Boolean) || [];
     const imageUrl = req.file ? req.file.path : (req.body.image || "");
 
     const newProduct = new Product({
@@ -227,8 +218,6 @@ app.post("/api/products", upload.single("image"), async (req, res) => {
       colors: colorsArray,
       image: imageUrl,
     });
-
-    console.log("Saving product:", newProduct);
 
     await newProduct.save();
     res.status(201).json({ message: "✅ Product added", product: newProduct });
@@ -243,8 +232,8 @@ app.delete("/api/products/:id", async (req, res) => {
     const deleted = await Product.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Product not found" });
     res.json({ message: "✅ Product deleted" });
-  } catch (error) {
-    console.error("Error deleting product:", error);
+  } catch (err) {
+    console.error("Error deleting product:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -262,7 +251,7 @@ app.get("/api/users", async (req, res) => {
 app.get("/api/categories", async (req, res) => {
   try {
     const products = await Product.find();
-    const categories = [...new Set(products.map((p) => p.category))].filter(Boolean);
+    const categories = [...new Set(products.map(p => p.category))].filter(Boolean);
     res.json({ categories });
   } catch (err) {
     console.error("Error fetching categories:", err);
@@ -273,22 +262,11 @@ app.get("/api/categories", async (req, res) => {
 app.get("/api/search", async (req, res) => {
   const { q } = req.query;
   try {
-    const products = await Product.find({
-      title: { $regex: q, $options: "i" },
-    });
-
-    const productsWithImageUrls = products.map((product) => {
-      const productObj = product.toObject();
-      return {
-        ...productObj,
-        image: productObj.image
-          ? productObj.image.startsWith("http")
-            ? productObj.image
-            : `http://localhost:${PORT}${productObj.image.startsWith("/") ? "" : "/"}${productObj.image}`
-          : "",
-      };
-    });
-
+    const products = await Product.find({ title: { $regex: q, $options: "i" } });
+    const productsWithImageUrls = products.map(p => ({
+      ...p.toObject(),
+      image: p.image ? getFullUrl(req, p.image) : "",
+    }));
     res.json({ products: productsWithImageUrls });
   } catch (err) {
     console.error("Search error:", err);
@@ -296,7 +274,7 @@ app.get("/api/search", async (req, res) => {
   }
 });
 
-// =================== START SERVER ===================
+// ========== START ==========
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
