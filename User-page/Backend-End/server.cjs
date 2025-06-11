@@ -247,7 +247,13 @@ app.get("/api/users", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self' https://vercel.live; connect-src 'self' https://vercel.live"
+  );
+  next();
+});
 app.get("/api/categories", async (req, res) => {
   try {
     const products = await Product.find();
